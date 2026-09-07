@@ -137,6 +137,20 @@ Tests live in `src/test/java`. `Test.java` uses JUnit 3 (`junit.framework.TestCa
 and prints heavily to stdout; `JSONArrayTest` and `JSONValueTest` use JUnit 4.
 Migrating everything to JUnit 5 with real assertions is a 1.2.0 item.
 
+`ConformanceTest` is the one test that does not check json-simple against
+itself: it compares against JSON-java (`org.json`), an independently written
+implementation, on a corpus of strictly valid documents. The comparison is
+semantic, because the two libraries produce different but equally valid text —
+json-simple's `\/` and its upper-case u-escapes among them. Keep json-simple's
+documented leniency out of that corpus: the reference rejects it, and the
+disagreement would say nothing about correctness.
+
+A differential test only sees what the other implementation rejects or reads
+differently. The reference parser accepts raw control characters inside a
+string, for instance, so `testEncodedOutputHasNoRawControlCharacters` checks the
+emitted text directly. Reach for that kind of structural assertion whenever the
+reference is more lenient than the spec.
+
 When you fix a bug, add an assertion that would have failed before the fix. When
 you touch anything on the red-line list — even to prove you did not change it —
 add an assertion that pins the current output.

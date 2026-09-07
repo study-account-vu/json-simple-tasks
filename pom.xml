@@ -57,6 +57,17 @@
           <version>4.13.2</version>
           <scope>test</scope>
       </dependency>
+      <!--
+        JSON-java, the reference implementation. Used by ConformanceTest to check
+        this library against an independent one rather than only against itself.
+        Test scope only: json-simple still has no runtime dependencies.
+      -->
+      <dependency>
+          <groupId>org.json</groupId>
+          <artifactId>json</artifactId>
+          <version>20250517</version>
+          <scope>test</scope>
+      </dependency>
   </dependencies>
 
   <build>

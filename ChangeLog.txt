@@ -19,6 +19,11 @@ Backward compatibility (regressions that reached master after 1.1.1 shipped)
   published release on API surface, binary compatibility, behaviour and
   serialization, and runs in CI
 
+* Added ConformanceTest, which checks decoding and encoding against JSON-java
+  (org.json), the reference implementation, rather than only against this
+  library's own past behaviour. Test scope only; there are still no runtime
+  dependencies
+
 Java compatibility
 * Replaced deprecated-for-removal new Integer(int) (18 uses) and new Character(char)
 * Build now uses maven.compiler.release=8 instead of source/target, which also
