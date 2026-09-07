@@ -27,7 +27,7 @@ public class ItemList {
 	}
 	
 	public ItemList(String s,String sp){
-		this.sp=s;
+		this.sp=sp;
 		this.split(s,sp,items);
 	}
 	
@@ -40,7 +40,7 @@ public class ItemList {
 	}
 	
 	public String[] getArray(){
-		return (String[])this.items.toArray();
+		return (String[])this.items.toArray(new String[this.items.size()]);
 	}
 	
 	public void split(String s,String sp,List append,boolean isMultiToken){

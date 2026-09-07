@@ -4,10 +4,14 @@
  */
 package org.json.simple.parser;
 
+import java.io.Serializable;
+
 /**
  * @author FangYidong &lt;fangyidong@gmail.com&gt;
  */
-public class Yytoken {
+public class Yytoken implements Serializable {
+	private static final long serialVersionUID = 4341219912214205621L;
+	
 	public static final int TYPE_VALUE=0;//JSON primitive value: string,number,boolean,null
 	public static final int TYPE_LEFT_BRACE=1;
 	public static final int TYPE_RIGHT_BRACE=2;
