@@ -14,7 +14,7 @@ import java.util.Map;
 /**
  * A JSON object. Key value pairs are unordered. JSONObject supports java.util.Map interface.
  * 
- * @author FangYidong<fangyidong@yahoo.com.cn>
+ * @author FangYidong &lt;fangyidong@gmail.com&gt;
  */
 public class JSONObject extends HashMap implements Map, JSONAware, JSONStreamAware{
 	

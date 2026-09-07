@@ -18,7 +18,7 @@ import org.json.simple.JSONObject;
 /**
  * Parser for JSON text. Please note that JSONParser is NOT thread-safe.
  * 
- * @author FangYidong<fangyidong@yahoo.com.cn>
+ * @author FangYidong &lt;fangyidong@gmail.com&gt;
  */
 public class JSONParser {
 	public static final int S_INIT=0;
