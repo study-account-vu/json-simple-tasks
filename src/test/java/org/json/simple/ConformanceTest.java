@@ -137,10 +137,10 @@ public class ConformanceTest extends TestCase {
 
 	/**
 	 * A differential test only catches what the other implementation rejects or
-	 * reads differently, and the reference parser happily accepts raw control
-	 * characters inside a string even though RFC 8259 forbids them. An encoder
-	 * that stopped escaping them would produce invalid JSON that this comparison
-	 * would still call equivalent, so check the text directly.
+	 * reads differently, and the reference is laxer than RFC 8259 here: of the
+	 * thirty-two control characters it refuses only NUL, LF and CR inside a
+	 * string, so an encoder that stopped escaping U+0001 would produce invalid
+	 * JSON that this comparison still called equivalent. Check the text itself.
 	 *
 	 * json-simple emits no insignificant whitespace, so no character below
 	 * U+0020 may appear anywhere in its output.

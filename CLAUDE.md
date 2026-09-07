@@ -145,11 +145,23 @@ json-simple's `\/` and its upper-case u-escapes among them. Keep json-simple's
 documented leniency out of that corpus: the reference rejects it, and the
 disagreement would say nothing about correctness.
 
+`RandomConformanceTest` generates documents rather than listing them, in two
+shapes: one that combines value types freely, and one that makes nesting depth
+the variable so that object-in-array-in-object chains are the normal case rather
+than a lucky one. The seed is fixed, so a green build always means the same
+thing; every failure message carries the seed, and the depth, needed to replay
+it. Keep generation inside what both libraries accept - no integers wider than a
+long, no duplicate keys, no unpaired surrogates - or the noise buries the signal.
+Nesting stays well under sixty-four levels: both libraries recurse somewhere, and
+the test should not turn into a measurement of the runner's stack size.
+
 A differential test only sees what the other implementation rejects or reads
-differently. The reference parser accepts raw control characters inside a
-string, for instance, so `testEncodedOutputHasNoRawControlCharacters` checks the
-emitted text directly. Reach for that kind of structural assertion whenever the
-reference is more lenient than the spec.
+differently, and the reference is more lenient than RFC 8259 in places. It
+accepts every raw control character inside a string except NUL, LF and CR, so an
+encoder that stopped escaping U+0001 would still pass the comparison. That is
+why `testEncodedOutputHasNoRawControlCharacters` checks the emitted text
+directly. Reach for that kind of structural assertion wherever the reference is
+laxer than the spec.
 
 When you fix a bug, add an assertion that would have failed before the fix. When
 you touch anything on the red-line list — even to prove you did not change it —
