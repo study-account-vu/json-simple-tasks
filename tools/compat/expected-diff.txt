@@ -1,0 +1,102 @@
+# Recorded differences from the last published release (tag_release_1_1_1)
+# to the current working tree. Regenerate with:
+#
+#     tools/compat-check.sh tag_release_1_1_1 --accept
+#
+# Review every line before committing. This file is the record of what a
+# release deliberately changes for downstream users; anything NOT listed here
+# makes tools/compat-check.sh fail. Never run --accept just to clear a red
+# failure.
+#
+# ---------------------------------------------------------------------------
+# Everything below is additive or intended. The three binary-compatibility
+# regressions that master carried after 1.1.1 shipped were fixed in 1.1.2 and
+# no longer appear here:
+#
+#   * JSONArray.toJSONString(List) / writeJSONString(List, Writer) are back as
+#     deprecated delegates to the Collection forms, so callers compiled against
+#     1.1.1 no longer hit NoSuchMethodError.
+#   * ParseException.toString() again returns the plain description, matching
+#     1.1.1; getMessage() returns it too, which 1.1.1 did not do.
+#   * ParseException.serialVersionUID is back to -7880698968187728548.
+#
+# What remains:
+#
+#   ADDITIVE   the array-encoding overloads on JSONArray, JSONArray(Collection),
+#              the Collection forms, ParseException.getMessage(), and Yytoken
+#              becoming Serializable. Nothing here removes or narrows anything.
+#
+#   BEHAVIOUR  arrays and non-List Collections now encode as JSON arrays rather
+#              than falling through to Object.toString(); integers that overflow
+#              long report ParseException instead of letting a raw
+#              NumberFormatException escape.
+#
+# The [I@HASH / [B@HASH forms on the "-" side are Object.toString() output from
+# 1.1.1, normalised by the harness so identity hashes do not cause false diffs.
+# ---------------------------------------------------------------------------
+-public class org.json.simple.JSONArray extends java.util.ArrayList implements java.util.List,org.json.simple.JSONAware,org.json.simple.JSONStreamAware {
++public class org.json.simple.JSONArray extends java.util.ArrayList implements org.json.simple.JSONAware,org.json.simple.JSONStreamAware {
+-  public static void writeJSONString(java.util.List, java.io.Writer) throws java.io.IOException;
++  public org.json.simple.JSONArray(java.util.Collection);
++  public static void writeJSONString(java.util.Collection, java.io.Writer) throws java.io.IOException;
++  public static java.lang.String toJSONString(java.util.Collection);
++  public static void writeJSONString(java.util.List, java.io.Writer) throws java.io.IOException;
++  public static void writeJSONString(byte[], java.io.Writer) throws java.io.IOException;
++  public static java.lang.String toJSONString(byte[]);
++  public static void writeJSONString(short[], java.io.Writer) throws java.io.IOException;
++  public static java.lang.String toJSONString(short[]);
++  public static void writeJSONString(int[], java.io.Writer) throws java.io.IOException;
++  public static java.lang.String toJSONString(int[]);
++  public static void writeJSONString(long[], java.io.Writer) throws java.io.IOException;
++  public static java.lang.String toJSONString(long[]);
++  public static void writeJSONString(float[], java.io.Writer) throws java.io.IOException;
++  public static java.lang.String toJSONString(float[]);
++  public static void writeJSONString(double[], java.io.Writer) throws java.io.IOException;
++  public static java.lang.String toJSONString(double[]);
++  public static void writeJSONString(boolean[], java.io.Writer) throws java.io.IOException;
++  public static java.lang.String toJSONString(boolean[]);
++  public static void writeJSONString(char[], java.io.Writer) throws java.io.IOException;
++  public static java.lang.String toJSONString(char[]);
++  public static void writeJSONString(java.lang.Object[], java.io.Writer) throws java.io.IOException;
++  public static java.lang.String toJSONString(java.lang.Object[]);
++  public java.lang.String getMessage();
+-public class org.json.simple.parser.Yytoken {
++public class org.json.simple.parser.Yytoken implements java.io.Serializable {
+-encode map = {"s":"a\/b\u2028","n":7,"d":1.5,"arr":[I@HASH,"bytes":[B@HASH,"chars":[C@HASH,"money":{"cents":999}}
++encode map = {"s":"a\/b\u2028","n":7,"d":1.5,"arr":[1,2,3],"bytes":[-1,2],"chars":["x","y"],"money":{"cents":999}}
+-PE.message = null
++PE.message = Unexpected token RIGHT BRACE(}) at position 4.
+-[9223372036854775808] => THROW java.lang.NumberFormatException | parse=null
+-[-9223372036854775809] => THROW java.lang.NumberFormatException | parse=null
+-[99999999999999999999999999] => THROW java.lang.NumberFormatException | parse=null
++[9223372036854775808] => THROW org.json.simple.parser.ParseException | parse=null
++[-9223372036854775809] => THROW org.json.simple.parser.ParseException | parse=null
++[99999999999999999999999999] => THROW org.json.simple.parser.ParseException | parse=null
+-enc(int[]) => [I@HASH
+-enc(long[]) => [J@HASH
+-enc(short[]) => [S@HASH
+-enc(byte[]) => [B@HASH
+-enc(float[]) => [F@HASH
+-enc(double[]) => [D@HASH
+-enc(boolean[]) => [Z@HASH
+-enc(char[]) => [C@HASH
+-enc(String[]) => [Ljava.lang.String;@HASH
+-enc(Object[]) => [Ljava.lang.Object;@HASH
+-enc(int[]) => [I@HASH
+-enc(Object[]) => [Ljava.lang.Object;@HASH
++enc(int[]) => [1,2]
++enc(long[]) => [1]
++enc(short[]) => [1]
++enc(byte[]) => [1]
++enc(float[]) => [1.5]
++enc(double[]) => [1.5]
++enc(boolean[]) => [true]
++enc(char[]) => ["a","/"]
++enc(String[]) => ["a","b"]
++enc(Object[]) => [null,1,"x"]
++enc(int[]) => []
++enc(Object[]) => []
+-enc(HashSet) => [only]
++enc(HashSet) => ["only"]
+-org.json.simple.parser.Yytoken -> not serializable
++org.json.simple.parser.Yytoken -> 4341219912214205621

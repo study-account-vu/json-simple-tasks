@@ -1,0 +1,93 @@
+name: build
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # The jar targets Java 8, but maven.compiler.release=8 needs JDK 9+ to
+        # build. 11 is the floor here; 25 catches deprecations early.
+        java: [ '11', '17', '21', '25' ]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK ${{ matrix.java }}
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: ${{ matrix.java }}
+          cache: maven
+
+      - name: Build and test
+        run: mvn --batch-mode --no-transfer-progress verify
+
+  # Separately prove the produced jar still runs on Java 8.
+  run-on-java8:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17 (to build)
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+
+      - name: Build jar
+        run: mvn --batch-mode --no-transfer-progress -DskipTests package
+
+      - name: Set up JDK 8 (to run)
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '8'
+
+      - name: Smoke test on Java 8
+        run: |
+          mkdir -p /tmp/smoke
+          cat > /tmp/smoke/Smoke.java <<'JAVA'
+          import org.json.simple.*;
+          public class Smoke {
+            public static void main(String[] a) throws Exception {
+              JSONObject o = (JSONObject) JSONValue.parseWithException("{\"n\":1,\"s\":\"x\"}");
+              if (!Long.valueOf(1).equals(o.get("n"))) throw new AssertionError("n");
+              if (!"x".equals(o.get("s")))             throw new AssertionError("s");
+              if (!"\"a\\/b\"".equals(JSONValue.toJSONString("a/b"))) throw new AssertionError("escape");
+              System.out.println("ok on " + System.getProperty("java.version"));
+            }
+          }
+          JAVA
+          JAR=$(ls target/json-simple-*.jar | grep -v sources | grep -v javadoc | head -1)
+          javac -cp "$JAR" -d /tmp/smoke /tmp/smoke/Smoke.java
+          java -cp "$JAR:/tmp/smoke" Smoke
+
+  # Compare the working tree against the last published release along four axes:
+  # API surface, binary compatibility, observable behaviour, and serialization.
+  # Fails on any difference not recorded in tools/compat/expected-diff.txt.
+  compatibility:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0        # the baseline is a tag, so full history is needed
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Check backward compatibility
+        run: tools/compat-check.sh
+
+      - name: Check documentation references
+        run: tools/check-docs.sh
