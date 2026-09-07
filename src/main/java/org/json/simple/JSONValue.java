@@ -116,8 +116,9 @@ public class JSONValue {
      * @see org.json.simple.JSONObject#writeJSONString(Map, Writer)
      * @see org.json.simple.JSONArray#writeJSONString(List, Writer)
      * 
-     * @param value
-     * @param writer
+     * @param value the value to encode; may be null
+     * @param out the writer to write the JSON text to
+     * @throws IOException if the writer does
      */
 	public static void writeJSONString(Object value, Writer out) throws IOException {
 		if(value == null){
