@@ -84,6 +84,60 @@ public class RegressionTest extends TestCase {
 	}
 
 	/*
+	 * ---- Binary compatibility with the published 1.1.1. ----
+	 *
+	 * These three regressions reached master after 1.1.1 shipped and were fixed
+	 * in 1.1.2. Source compatibility never broke, so only reflection and
+	 * serialization metadata can catch them.
+	 */
+
+	/**
+	 * Widening these parameters from List to Collection left already-compiled
+	 * callers looking up a descriptor that no longer existed, so they failed
+	 * with NoSuchMethodError at runtime.
+	 */
+	public void testListOverloadsStillExist() throws Exception {
+		assertNotNull(JSONArray.class.getMethod("toJSONString", java.util.List.class));
+		assertNotNull(JSONArray.class.getMethod("writeJSONString",
+				java.util.List.class, java.io.Writer.class));
+		// and the Collection forms they delegate to
+		assertNotNull(JSONArray.class.getMethod("toJSONString", java.util.Collection.class));
+		assertNotNull(JSONArray.class.getMethod("writeJSONString",
+				java.util.Collection.class, java.io.Writer.class));
+
+		java.util.List list = new java.util.ArrayList();
+		list.add("x");
+		list.add(Long.valueOf(1));
+		assertEquals("[\"x\",1]", JSONArray.toJSONString(list));
+
+		java.io.StringWriter writer = new java.io.StringWriter();
+		JSONArray.writeJSONString(list, writer);
+		assertEquals("[\"x\",1]", writer.toString());
+	}
+
+	/**
+	 * On 1.1.1 toString() carried the description and getMessage() returned
+	 * null. Both must return it now, so callers written against either release
+	 * see the same text.
+	 */
+	public void testParseExceptionToStringCarriesTheDescription() {
+		try {
+			JSONValue.parseWithException("[1,2}");
+			fail("expected a ParseException");
+		} catch (ParseException e) {
+			String expected = "Unexpected token RIGHT BRACE(}) at position 4.";
+			assertEquals(expected, e.getMessage());
+			assertEquals(expected, e.toString());
+		}
+	}
+
+	/** Changing this value would break deserialization across versions. */
+	public void testParseExceptionSerialVersionUidIsUnchanged() {
+		assertEquals(-7880698968187728548L,
+				java.io.ObjectStreamClass.lookup(ParseException.class).getSerialVersionUID());
+	}
+
+	/*
 	 * ---- Red lines. These pin behaviour that must not change; see CLAUDE.md. ----
 	 */
 

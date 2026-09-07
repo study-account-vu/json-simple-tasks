@@ -7,7 +7,7 @@ package org.json.simple.parser;
  *
  */
 public class ParseException extends Exception {
-	private static final long serialVersionUID = -7880698968187728547L;
+	private static final long serialVersionUID = -7880698968187728548L;
 	
 	public static final int ERROR_UNEXPECTED_CHAR = 0;
 	public static final int ERROR_UNEXPECTED_TOKEN = 1;
@@ -66,6 +66,15 @@ public class ParseException extends Exception {
 	
 	public void setUnexpectedObject(Object unexpectedObject) {
 		this.unexpectedObject = unexpectedObject;
+	}
+	
+	/**
+	 * On 1.1.1 the description was carried by toString() and getMessage()
+	 * returned null. Both now return the description, so callers written
+	 * against either release see the same text.
+	 */
+	public String toString() {
+		return getMessage();
 	}
 	
 	public String getMessage() {

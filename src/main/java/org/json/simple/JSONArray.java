@@ -10,6 +10,7 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * A JSON array. JSONObject supports java.util.List interface.
@@ -97,6 +98,34 @@ public class JSONArray extends ArrayList implements JSONAware, JSONStreamAware {
 		}
 	}
 
+	/**
+	 * Binary-compatibility overload for callers compiled against 1.1.1, where
+	 * this method took a List. Widening the parameter to Collection kept source
+	 * compatibility but not binary compatibility: already-compiled callers look
+	 * up the exact descriptor and fail with NoSuchMethodError.
+	 *
+	 * @param list the list to encode
+	 * @param out the writer to encode to
+	 * @deprecated use {@link #writeJSONString(Collection, Writer)}
+	 */
+	@Deprecated
+	public static void writeJSONString(List list, Writer out) throws IOException{
+		writeJSONString((Collection)list, out);
+	}
+	
+	/**
+	 * Binary-compatibility overload for callers compiled against 1.1.1, where
+	 * this method took a List.
+	 *
+	 * @param list the list to encode
+	 * @return JSON text, or "null" if list is null
+	 * @deprecated use {@link #toJSONString(Collection)}
+	 */
+	@Deprecated
+	public static String toJSONString(List list){
+		return toJSONString((Collection)list);
+	}
+	
 	public static void writeJSONString(byte[] array, Writer out) throws IOException{
 		if(array == null){
 			out.write("null");
