@@ -1,28 +1,24 @@
-# Debugging Task: Malformed Json Input
+# Task 1: Malformed JSON Input
 
-## Report
+## Bug Report
 
-In JSON, an object contains key-value pairs. String keys and values are surrounded by double quotes (`"`), and a colon (`:`) separates each key from its value.
+In JSON, string keys and values are surrounded by double quotes (`"`), and a colon (`:`) separates a key from its value.
 
-For example, a correctly formatted object looks like:
+For example:
 
 ```text
 {"city":"Nashville"}
 ```
 
-An additional quote can make the object invalid:
+An extra quote makes the input invalid:
 
 ```text
 {"city"":"Nashville"}
 ```
 
-When json-simple encounters malformed JSON, it reports information about where parsing failed. In some cases involving an extra quote after an object key, the reported location points to a later character rather than the extra quote that made the input invalid.
+json-simple rejects this malformed input, but reports the error at a later character instead of the unexpected extra quote.
 
-## Expected Behavior
-
-The malformed JSON should be rejected when the unexpected extra quote is encountered at zero-based position 8, rather than continuing until the later `d` at position 11.
-
-## Reproduction
+## Reproduce the Bug
 
 From the repository root, compile the project:
 
@@ -30,18 +26,10 @@ From the repository root, compile the project:
 mvn -q -DskipTests compile
 ```
 
-Warnings may appear during compilation and can be ignored as long as the build completes without errors.
-
-Start the Java REPL with the compiled classes:
+Start JShell:
 
 ```sh
 jshell --class-path target/classes
-```
-
-To exit JShell at any time, enter:
-
-```text
-/exit
 ```
 
 Then run:
@@ -54,14 +42,32 @@ String input = "[{\"name\"\":\"diego\"},{\"name\":\"andre\"},{\"name\":\"arambul
 new JSONParser().parse(input);
 ```
 
-The current failure identifies the `d` in `diego` at zero-based position 11. The unexpected extra quote occurs at zero-based position 8.
+**Current:** The parser reports the `d` in `diego` at zero-based position 11.
 
-## Task
+**Expected:** The malformed JSON should be rejected at the unexpected extra quote at zero-based position 8.
 
-Investigate the cause of this behavior and modify the implementation so that the malformed input is identified at the correct location.
+## Your Task
 
-## Acceptance Checks
+**Investigate why the malformed input is identified at the wrong location, and modify the code to fix the bug.**
 
-* The malformed input still produces a parse failure.
-* The failure identifies the unexpected extra quote at position 8.
-* Valid JSON input continues to parse normally.
+## Test Your Fix
+
+After making a code change, exit JShell:
+
+```text
+/exit
+```
+
+Recompile:
+
+```sh
+mvn -q -DskipTests compile
+```
+
+Start JShell again:
+
+```sh
+jshell --class-path target/classes
+```
+
+Repeat the reproduction steps above to check whether your fix works.

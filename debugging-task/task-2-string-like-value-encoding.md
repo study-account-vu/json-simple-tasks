@@ -1,50 +1,18 @@
-# Debugging Task: String-Like Value Encoding
+# Task 2: String-Like Value Encoding
 
-Please ensure that you have completed Task 1 before beginning this task.
+Please complete Task 1 before beginning this task.
 
-## Report
+## Bug Report
 
-JSON uses delimiters to mark the beginning and end of certain values. A delimiter is a character that indicates where a value starts or ends. For JSON strings, double quotes (`"`) are used as delimiters.
-
-For example, the text:
-
-```text
-hello
-```
-
-is represented as a JSON string by surrounding it with double quotes:
+JSON strings are surrounded by double quotes (`"`). For example:
 
 ```text
 "hello"
 ```
 
-In Java, `StringBuilder` and `StringBuffer` can also contain text. When these values are serialized by json-simple, however, the text is written without the surrounding double quotes required for a JSON string.
+In Java, `StringBuilder` and `StringBuffer` can also contain text. Currently, json-simple serializes these values without the double quotes required for a JSON string.
 
-For example, a `StringBuilder` containing `hello` is currently serialized as:
-
-```text
-hello
-```
-
-instead of:
-
-```text
-"hello"
-```
-
-## Expected Behavior
-
-Text contained in a `StringBuilder` or `StringBuffer` should be serialized as a valid JSON string, including the surrounding double quotes and any escaping required to represent the text correctly.
-
-For example:
-
-```text
-StringBuilder containing: hello
-
-Expected JSON: "hello"
-```
-
-## Reproduction
+## Reproduce the Bug
 
 From the repository root, compile the project:
 
@@ -52,16 +20,11 @@ From the repository root, compile the project:
 mvn -q -DskipTests compile
 ```
 
-Warnings may appear during compilation and can be ignored as long as the build completes without errors.
-
-Start the Java REPL with the compiled classes:
+Start JShell:
 
 ```sh
 jshell --class-path target/classes
 ```
-To exit JShell at any time, enter:
-
-/exit
 
 Then run:
 
@@ -75,28 +38,42 @@ System.out.println(JSONValue.toJSONString(builder));
 System.out.println(JSONValue.toJSONString(buffer));
 ```
 
-The current output is:
+**Current:**
 
 ```text
 hello
 world
 ```
 
-The expected output is:
+**Expected:**
 
 ```text
 "hello"
 "world"
 ```
 
-## Task
+## Your Task
 
-Investigate the cause of this behavior and fix it.
+**Investigate why `StringBuilder` and `StringBuffer` values are not serialized as valid JSON strings, and modify the code to fix the bug.**
 
-## Acceptance Checks
+## Test Your Fix
 
-* `StringBuilder("hello")` serializes as `"hello"`.
-* `StringBuffer("world")` serializes as `"world"`.
-* Text containing quotes, backslashes, or control characters produces valid JSON.
-* Serialized values can be parsed back to their original text.
-* Existing serialization behavior for ordinary strings, numbers, booleans, `null`, arrays, collections, and maps remains unchanged.
+After making a code change, exit JShell:
+
+```text
+/exit
+```
+
+Recompile:
+
+```sh
+mvn -q -DskipTests compile
+```
+
+Start JShell again:
+
+```sh
+jshell --class-path target/classes
+```
+
+Repeat the reproduction steps above to check whether your fix works.
