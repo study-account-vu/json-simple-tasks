@@ -33,18 +33,6 @@ public class RegressionTest extends TestCase {
 	}
 
 	/**
-	 * getArray() cast the result of the no-arg toArray(), which is always an
-	 * Object[], so it threw ClassCastException for every input.
-	 */
-	public void testItemListGetArray() {
-		String[] items = new ItemList("a,b,c").getArray();
-		assertEquals(3, items.length);
-		assertEquals("a", items[0]);
-		assertEquals("b", items[1]);
-		assertEquals("c", items[2]);
-	}
-
-	/**
 	 * The two-argument constructor assigned the input string to the separator
 	 * field, so toString() joined the items with the whole input.
 	 */

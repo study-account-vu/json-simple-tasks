@@ -1,10 +1,10 @@
-# Task 2: String-Like Value Encoding
+# Task 1: String-Like Value Encoding
 
 Please complete Task 1 before beginning this task.
 
 ## Bug Report
 
-JSON strings are surrounded by double quotes (`"`). For example:
+Here, **serialization** means converting a Java value into JSON text; it does not mean Java's object-serialization mechanism. A JSON string is text surrounded by double quotes (`"`). For example:
 
 ```text
 "hello"
@@ -26,7 +26,7 @@ Start JShell:
 jshell --class-path target/classes
 ```
 
-Then run:
+At the JShell prompt, run:
 
 ```java
 import org.json.simple.JSONValue;
