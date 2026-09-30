@@ -3,24 +3,13 @@ import org.json.simple.parser.*;
 import java.io.*;
 import java.util.*;
 
-/**
- * Stands in for a downstream project written around 2012, calling json-simple
- * the way the API was idiomatically used at the time: raw types, the deprecated
- * parse(), and the interfaces implemented by hand.
- *
- * Compiled against the baseline release and then run against both builds, so any
- * binary-compatibility break shows up as a difference in its output.
- */
 public class LegacyConsumer {
 
-    // Common downstream pattern 1: implement ContainerFactory. Note the
-    // misspelled method name - it is part of the published interface.
     static class OrderedFactory implements ContainerFactory {
         public Map createObjectContainer() { return new LinkedHashMap(); }
         public List creatArrayContainer()  { return new ArrayList(); }
     }
 
-    // Common downstream pattern 2: implement ContentHandler for streaming.
     static class Counter implements ContentHandler {
         int objects, arrays, primitives;
         public void startJSON() {}
@@ -34,7 +23,6 @@ public class LegacyConsumer {
         public boolean primitive(Object v) { primitives++; return true; }
     }
 
-    // Common downstream pattern 3: implement JSONAware / JSONStreamAware.
     static class Money implements JSONAware, JSONStreamAware {
         long cents;
         Money(long c) { cents = c; }
@@ -42,7 +30,6 @@ public class LegacyConsumer {
         public void writeJSONString(Writer out) throws IOException { out.write(toJSONString()); }
     }
 
-    // Common downstream pattern 4: subclass JSONObject, using raw types.
     static class Config extends JSONObject {
         Config() { super(); put("kind", "config"); }
     }
@@ -54,7 +41,6 @@ public class LegacyConsumer {
                    + "\"path\":\"a/b\",\"list\":[1,\"two\",3.0,false,null],"
                    + "\"nested\":{\"x\":{\"y\":[{\"z\":1}]}}}";
 
-        // Decoding, and the decoded-type contract.
         JSONObject o = (JSONObject) JSONValue.parseWithException(doc);
         p("id",     o.get("id")     + " : " + o.get("id").getClass().getName());
         p("ratio",  o.get("ratio")  + " : " + o.get("ratio").getClass().getName());
@@ -66,11 +52,9 @@ public class LegacyConsumer {
         p("list[1]",   arr.get(1));
         p("nested",    JSONValue.toJSONString(o.get("nested")));
 
-        // The deprecated parse(): returns null rather than reporting an error.
         p("parse(garbage)", JSONValue.parse("{"));
         p("parse(ok)",      JSONValue.parse("[1,2]"));
 
-        // Encoding: maps, lists, arrays, and a custom JSONAware type.
         Map m = new LinkedHashMap();
         m.put("s", "a/b "); m.put("n", new Integer(7)); m.put("d", new Double(1.5));
         m.put("arr", new int[]{1,2,3}); m.put("bytes", new byte[]{-1,2});
@@ -85,22 +69,18 @@ public class LegacyConsumer {
         Config cfg = new Config();
         p("subclass", cfg.toJSONString());
 
-        // Static encoding helpers.
         p("JSONObject.toString(k,v)", JSONObject.toString("k", "v/1"));
         p("JSONObject.escape", JSONObject.escape("a/b\t "));
         p("JSONValue.escape",  JSONValue.escape("</script>"));
 
-        // ContainerFactory
         JSONParser parser = new JSONParser();
         Map ordered = (Map) parser.parse("{\"z\":1,\"a\":2,\"m\":3}", new OrderedFactory());
         p("ordered keys", ordered.keySet());
 
-        // ContentHandler
         Counter c = new Counter();
         new JSONParser().parse(new StringReader(doc), c);
         p("counts", c.objects + "/" + c.arrays + "/" + c.primitives);
 
-        // ParseException details.
         try { new JSONParser().parse("[1,2}"); }
         catch (ParseException e) {
             p("PE.message", e.getMessage());
@@ -109,18 +89,14 @@ public class LegacyConsumer {
             p("PE.unexpected", e.getUnexpectedObject());
         }
 
-        // Java serialization of JSONObject - downstream code puts these into
-        // HTTP sessions and caches.
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         ObjectOutputStream oos = new ObjectOutputStream(bos); oos.writeObject(o); oos.close();
         JSONObject back = (JSONObject) new ObjectInputStream(new ByteArrayInputStream(bos.toByteArray())).readObject();
         p("serialize roundtrip", back.get("id") + "," + back.get("path"));
 
-        // ItemList
         ItemList il = new ItemList("a,b,c");
         p("ItemList", il.size() + " " + il.get(0) + " " + il.toString());
 
-        // Streaming write.
         StringWriter sw = new StringWriter();
         JSONValue.writeJSONString(o.get("list"), sw);
         p("writeJSONString", sw.toString());

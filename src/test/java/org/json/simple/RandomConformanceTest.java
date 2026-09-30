@@ -8,66 +8,17 @@ import java.util.Random;
 
 import junit.framework.TestCase;
 
-/**
- * Randomised differential test against JSON-java (org.json).
- *
- * ConformanceTest uses a hand-written corpus, which is deterministic and easy to
- * review but only covers what somebody thought of. This one generates documents
- * instead: text in a dozen scripts, integers and doubles across their whole
- * ranges, booleans, nulls, and arbitrarily combined arrays and objects. It is
- * looking for the combinations nobody thought of.
- *
- * Documents are generated two ways, because one generator cannot do both jobs
- * well. The first combines value types freely and produces broad shapes; with a
- * two-in-seven chance of a container at each slot it is flat about half the
- * time, which is fine for exercising leaves but poor at depth. The second makes
- * depth the variable: a chain of up to sixty-four containers, each
- * independently an object or an array, so object-in-array-in-object alternation
- * is the normal case, with a random number of ordinary members at every level.
- *
- * Runs are reproducible. The seed is fixed so that a green build means the same
- * thing every time; pass -Djson.simple.test.seed=N to explore a different part
- * of the space, and -Djson.simple.test.documents=N or
- * -Djson.simple.test.deep.documents=N to generate more. Every failure message
- * carries the seed, and the deep one the depth, needed to replay it.
- *
- * Three properties are checked for every generated document, covering both
- * directions:
- *
- *   - what json-simple writes, the reference reads back as the same data;
- *   - what the reference writes, json-simple reads back as the same data;
- *   - json-simple's own round trip reproduces its text exactly.
- *
- * Generation deliberately stays inside the intersection of the two libraries.
- * It produces no integer wider than a long (json-simple cannot read those - see
- * ConformanceTest), no duplicate keys and no trailing commas (the reference
- * rejects both), and no unpaired surrogates (not well-formed Unicode).
- */
 public class RandomConformanceTest extends TestCase {
 
 	private static final long DEFAULT_SEED = 20120129L;
 	private static final int DEFAULT_DOCUMENTS = 2000;
 	private static final int DEFAULT_DEEP_DOCUMENTS = 300;
 
-	/** Shape generation: deep enough to combine containers freely. */
 	private static final int MAX_DEPTH = 6;
 	private static final int MAX_MEMBERS = 6;
 
-	/**
-	 * Depth generation. Both libraries recurse somewhere: json-simple when it
-	 * encodes (measured at roughly 12,000 levels on a 1 MB stack, under 2,000 on
-	 * 512 KB) and the reference when it parses (roughly 4,000 and 750). Sixty-four
-	 * exercises real nesting while staying an order of magnitude clear of the
-	 * smaller of those, so the test cannot turn into a stack-size measurement.
-	 */
 	private static final int MAX_CHAIN_DEPTH = 64;
 
-	/**
-	 * Code point ranges to draw text from. Latin, accented Latin, Greek,
-	 * Cyrillic, Hebrew, Arabic, Devanagari, Thai, Hiragana, Katakana, CJK,
-	 * Hangul, currency and punctuation blocks that json-simple escapes, C0
-	 * controls, and emoji above the BMP.
-	 */
 	private static final int[][] SCRIPTS = {
 		{ 0x0020, 0x007e }, { 0x00a0, 0x00ff }, { 0x0370, 0x03ff },
 		{ 0x0400, 0x04ff }, { 0x0590, 0x05ff }, { 0x0600, 0x06ff },
@@ -85,7 +36,6 @@ public class RandomConformanceTest extends TestCase {
 		random = new Random(seed);
 	}
 
-	/** Broad shapes: every value type, containers combined freely. */
 	public void testGeneratedDocumentsSurviveBothLibraries() throws Exception {
 		int documents = Integer.getInteger("json.simple.test.documents",
 				DEFAULT_DOCUMENTS).intValue();
@@ -96,16 +46,6 @@ public class RandomConformanceTest extends TestCase {
 		}
 	}
 
-	/**
-	 * Depth specifically. The generator above combines containers, but with a
-	 * two-in-seven chance of choosing one at each slot it produces a flat
-	 * document about half the time and rarely reaches its own ceiling. This test
-	 * makes depth the variable instead: a chain of up to sixty-four containers,
-	 * each independently an object or an array, so object-in-array-in-object
-	 * alternation is the normal case rather than a lucky one. Every level also
-	 * carries a random number of ordinary members beside the one that continues
-	 * the chain, so width varies with depth.
-	 */
 	public void testDeeplyNestedDocumentsSurviveBothLibraries() throws Exception {
 		int documents = Integer.getInteger("json.simple.test.deep.documents",
 				DEFAULT_DEEP_DOCUMENTS).intValue();
@@ -116,12 +56,6 @@ public class RandomConformanceTest extends TestCase {
 		}
 	}
 
-	/**
-	 * Both directions, for one document: what json-simple writes the reference
-	 * must read as the same data, what the reference writes json-simple must
-	 * read as the same data, and json-simple's own round trip must reproduce its
-	 * text exactly rather than merely something equivalent.
-	 */
 	private void verify(Object generated, String label) throws Exception {
 		String written = JSONValue.toJSONString(generated);
 		String where = label + ": " + abbreviate(written);
@@ -143,7 +77,6 @@ public class RandomConformanceTest extends TestCase {
 				written, JSONValue.toJSONString(JSONValue.parseWithException(written)));
 	}
 
-	// ---------------------------------------------------------------- values
 
 	private Object value(int depth) {
 		int choice = random.nextInt(depth > 0 ? 7 : 5);
@@ -171,19 +104,11 @@ public class RandomConformanceTest extends TestCase {
 		JSONObject object = new JSONObject();
 		int size = random.nextInt(MAX_MEMBERS + 1);
 		for (int i = 0; i < size; i++) {
-			// A key collision would silently shrink the object and, worse, the
-			// reference rejects duplicates outright, so keep them distinct.
 			object.put(text() + "#" + i, value(depth));
 		}
 		return object;
 	}
 
-	/**
-	 * A chain of `depth` containers, each independently an object or an array,
-	 * each carrying a random number of leaves alongside the single member that
-	 * continues the chain. The continuing member sits at a random position, so
-	 * the nesting is not always the first or last element.
-	 */
 	private Object chain(int depth) {
 		Object node = value(0);
 		for (int level = 0; level < depth; level++) {
@@ -227,7 +152,6 @@ public class RandomConformanceTest extends TestCase {
 			case 4: return random.nextDouble();
 			case 5: return -random.nextDouble() * 1e9;
 			default:
-				// Anything non-finite is encoded as null and cannot round trip.
 				double value = Double.longBitsToDouble(random.nextLong());
 				return Double.isNaN(value) || Double.isInfinite(value) ? 1.5d : value;
 		}
@@ -239,7 +163,6 @@ public class RandomConformanceTest extends TestCase {
 		for (int i = 0; i < length; i++) {
 			int[] script = SCRIPTS[random.nextInt(SCRIPTS.length)];
 			int codePoint = script[0] + random.nextInt(script[1] - script[0] + 1);
-			// Unpaired surrogates are not well-formed text; skip that block.
 			if (Character.isSurrogate((char) codePoint)) {
 				codePoint = 'x';
 			}
@@ -252,9 +175,7 @@ public class RandomConformanceTest extends TestCase {
 		return document.length() <= 200 ? document : document.substring(0, 200) + "...";
 	}
 
-	// ----------------------------------------------------------- comparison
 
-	/** Same contract as ConformanceTest.assertEquivalent: compares meaning. */
 	private static void assertEquivalent(String context, Object mine, Object theirs) {
 		if (mine == null || org.json.JSONObject.NULL.equals(theirs)) {
 			assertTrue(context + ": one side is null, the other is " + mine + " / " + theirs,

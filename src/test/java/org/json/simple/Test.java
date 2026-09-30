@@ -1,7 +1,3 @@
-/*
- * $Id: Test.java,v 1.1 2006/04/15 14:40:06 platform Exp $
- * Created on 2006-4-15
- */
 package org.json.simple;
 
 import java.io.IOException;
@@ -21,9 +17,6 @@ import org.json.simple.parser.ContentHandler;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
-/**
- * @author FangYidong &lt;fangyidong@gmail.com&gt;
- */
 public class Test extends TestCase{
 
 	public void testDecode() throws Exception{

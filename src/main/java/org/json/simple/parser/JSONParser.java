@@ -1,7 +1,3 @@
-/*
- * $Id: JSONParser.java,v 1.1 2006/04/15 14:10:48 platform Exp $
- * Created on 2006-4-15
- */
 package org.json.simple.parser;
 
 import java.io.IOException;
@@ -15,14 +11,9 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 
-/**
- * Parser for JSON text. Please note that JSONParser is NOT thread-safe.
- * 
- * @author FangYidong &lt;fangyidong@gmail.com&gt;
- */
 public class JSONParser {
 	public static final int S_INIT=0;
-	public static final int S_IN_FINISHED_VALUE=1;//string,number,boolean,null,object,array
+	public static final int S_IN_FINISHED_VALUE=1; 
 	public static final int S_IN_OBJECT=2;
 	public static final int S_IN_ARRAY=3;
 	public static final int S_PASSED_PAIR_KEY=4;
@@ -42,31 +33,17 @@ public class JSONParser {
 		return status.intValue();
 	}
 	
-    /**
-     *  Reset the parser to the initial state without resetting the underlying reader.
-     *
-     */
     public void reset(){
         token = null;
         status = S_INIT;
         handlerStatusStack = null;
     }
     
-    /**
-     * Reset the parser to the initial state with a new character reader.
-     * 
-     * @param in - The new character reader.
-     * @throws IOException
-     * @throws ParseException
-     */
 	public void reset(Reader in){
 		lexer.yyreset(in);
 		reset();
 	}
 	
-	/**
-	 * @return The position of the beginning of the current token.
-	 */
 	public int getPosition(){
 		return lexer.getPosition();
 	}
@@ -81,9 +58,6 @@ public class JSONParser {
 			return parse(in, containerFactory);
 		}
 		catch(IOException ie){
-			/*
-			 * Actually it will never happen.
-			 */
 			throw new ParseException(-1, ParseException.ERROR_UNEXPECTED_EXCEPTION, ie);
 		}
 	}
@@ -92,22 +66,6 @@ public class JSONParser {
 		return parse(in, (ContainerFactory)null);
 	}
 	
-	/**
-	 * Parse JSON text into java object from the input source.
-	 * 	
-	 * @param in
-     * @param containerFactory - Use this factory to createyour own JSON object and JSON array containers.
-	 * @return Instance of the following:
-	 *  org.json.simple.JSONObject,
-	 * 	org.json.simple.JSONArray,
-	 * 	java.lang.String,
-	 * 	java.lang.Number,
-	 * 	java.lang.Boolean,
-	 * 	null
-	 * 
-	 * @throws IOException
-	 * @throws ParseException
-	 */
 	public Object parse(Reader in, ContainerFactory containerFactory) throws IOException, ParseException{
 		reset(in);
 		LinkedList statusStack = new LinkedList();
@@ -136,7 +94,7 @@ public class JSONParser {
 						break;
 					default:
 						status=S_IN_ERROR;
-					}//inner switch
+					} 
 					break;
 					
 				case S_IN_FINISHED_VALUE:
@@ -173,7 +131,7 @@ public class JSONParser {
 					default:
 						status=S_IN_ERROR;
 						break;
-					}//inner switch
+					} 
 					break;
 					
 				case S_PASSED_PAIR_KEY:
@@ -248,11 +206,11 @@ public class JSONParser {
 						break;
 					default:
 						status=S_IN_ERROR;
-					}//inner switch
+					} 
 					break;
 				case S_IN_ERROR:
 					throw new ParseException(getPosition(), ParseException.ERROR_UNEXPECTED_TOKEN, token);
-				}//switch
+				} 
 				if(status==S_IN_ERROR){
 					throw new ParseException(getPosition(), ParseException.ERROR_UNEXPECTED_TOKEN, token);
 				}
@@ -301,9 +259,6 @@ public class JSONParser {
 			parse(in, contentHandler, isResume);
 		}
 		catch(IOException ie){
-			/*
-			 * Actually it will never happen.
-			 */
 			throw new ParseException(-1, ParseException.ERROR_UNEXPECTED_EXCEPTION, ie);
 		}
 	}
@@ -312,20 +267,6 @@ public class JSONParser {
 		parse(in, contentHandler, false);
 	}
 	
-	/**
-	 * Stream processing of JSON text.
-	 * 
-	 * @see ContentHandler
-	 * 
-	 * @param in
-	 * @param contentHandler
-	 * @param isResume - Indicates if it continues previous parsing operation.
-     *                   If set to true, resume parsing the old stream, and parameter 'in' will be ignored. 
-	 *                   If this method is called for the first time in this instance, isResume will be ignored.
-	 * 
-	 * @throws IOException
-	 * @throws ParseException
-	 */
 	public void parse(Reader in, ContentHandler contentHandler, boolean isResume) throws IOException, ParseException{
 		if(!isResume){
 			reset(in);
@@ -368,7 +309,7 @@ public class JSONParser {
 						break;
 					default:
 						status=S_IN_ERROR;
-					}//inner switch
+					} 
 					break;
 					
 				case S_IN_FINISHED_VALUE:
@@ -414,7 +355,7 @@ public class JSONParser {
 					default:
 						status=S_IN_ERROR;
 						break;
-					}//inner switch
+					} 
 					break;
 					
 				case S_PASSED_PAIR_KEY:
@@ -452,10 +393,6 @@ public class JSONParser {
 					break;
 				
 				case S_IN_PAIR_VALUE:
-					/*
-					 * S_IN_PAIR_VALUE is just a marker to indicate the end of an object entry, it doesn't proccess any token,
-					 * therefore delay consuming token until next round.
-					 */
 					statusStack.removeFirst();
 					status = peekStatus(statusStack);
 					if(!contentHandler.endObjectEntry())
@@ -496,7 +433,7 @@ public class JSONParser {
 						break;
 					default:
 						status=S_IN_ERROR;
-					}//inner switch
+					} 
 					break;
 					
 				case S_END:
@@ -504,7 +441,7 @@ public class JSONParser {
 					
 				case S_IN_ERROR:
 					throw new ParseException(getPosition(), ParseException.ERROR_UNEXPECTED_TOKEN, token);
-				}//switch
+				} 
 				if(status==S_IN_ERROR){
 					throw new ParseException(getPosition(), ParseException.ERROR_UNEXPECTED_TOKEN, token);
 				}

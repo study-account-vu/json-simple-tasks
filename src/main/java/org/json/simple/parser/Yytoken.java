@@ -1,25 +1,18 @@
-/*
- * $Id: Yytoken.java,v 1.1 2006/04/15 14:10:48 platform Exp $
- * Created on 2006-4-15
- */
 package org.json.simple.parser;
 
 import java.io.Serializable;
 
-/**
- * @author FangYidong &lt;fangyidong@gmail.com&gt;
- */
 public class Yytoken implements Serializable {
 	private static final long serialVersionUID = 4341219912214205621L;
 	
-	public static final int TYPE_VALUE=0;//JSON primitive value: string,number,boolean,null
+	public static final int TYPE_VALUE=0; 
 	public static final int TYPE_LEFT_BRACE=1;
 	public static final int TYPE_RIGHT_BRACE=2;
 	public static final int TYPE_LEFT_SQUARE=3;
 	public static final int TYPE_RIGHT_SQUARE=4;
 	public static final int TYPE_COMMA=5;
 	public static final int TYPE_COLON=6;
-	public static final int TYPE_EOF=-1;//end of file
+	public static final int TYPE_EOF=-1; 
 	
 	public int type=0;
 	public Object value=null;

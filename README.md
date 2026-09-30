@@ -6,7 +6,7 @@ You will complete two debugging tasks in this repository.
 
 # Pilot Testing Setup
 
-> **This section is only for pilot testers who are setting up the repository on their own computer.**
+> **This section is only for pilot testers who are setting up the repository on their own computer. Please use your preferred IDE, but preferably Visual Studio Code or Eclipse**
 >
 > **Study participants will not complete this setup.** During the study, the repository and required development tools will already be installed and configured.
 
@@ -15,8 +15,8 @@ You will complete two debugging tasks in this repository.
 Clone the study repository:
 
 ```sh
-git clone <REPOSITORY-URL>
-cd <REPOSITORY-NAME>
+git clone https://github.com/study-account-vu/json-simple-tasks.git
+cd json-simple-tasks
 ```
 
 ## 2. Check Java
@@ -66,7 +66,28 @@ mvn -f "$REPO_ROOT/pom.xml" -q -DskipTests compile
 
 Warnings may appear and can be ignored as long as the project compiles without errors.
 
-If the project compiles successfully, setup is complete.
+If the project compiles successfully, setup is complete. **Setup time should not be included in the pilot timing.**
+
+Start a stopwatch before you begin reading the README and keep the same stopwatch running throughout the pilot.
+
+Record a **lap time** when:
+
+1. You finish reading the README and begin Task 1.
+2. You finish Task 1.
+3. You finish Task 2.
+
+**Time limits:**
+
+- Task 1: **35 minutes maximum**
+- Task 2: **20 minutes maximum**
+
+If you reach a task's time limit without completing it, stop and briefly record:
+
+- The file and method you were investigating.
+- What you thought was causing the bug.
+- Any fix you attempted.
+
+Then record the lap time and continue to the next task.
 
 ---
 

@@ -1,10 +1,6 @@
 import org.json.simple.*; import org.json.simple.parser.*;
 import java.io.*; import java.util.*;
 
-/**
- * Runs a broad set of inputs through decode and then encode, printing a
- * fingerprint of every result so that two builds can be diffed line by line.
- */
 public class Corpus {
     static String show(Object o) {
         if (o == null) return "null(null)";
@@ -33,8 +29,6 @@ public class Corpus {
           "\"\\uZZZZ\"", "\"\\q\"", "\"\\\\\"", "\"\\\"\"", "\"\\b\\f\\n\\r\\t\"",
           "\"\\u2028\"", "\"\\u0000\"", "\"\\u007f\"", "\"\\u0085\"", "\"\\u2060\"",
           "\"\\ud83d\\ude00\"", "\"\\ud800\"",
-          // Raw (unescaped) multi-byte UTF-8 input: two-byte U+00E9 and
-          // three-byte U+03A9 / U+20AC. The escaped form is covered above.
           "\"café\"", "\"Ω\"", "\"€\"",
           "[1,2,3]", "[1,2,]", "[1 2]", "[,]", "[1,,2]", "[[[]]]", "[{},[],\"\"]",
           "{\"a\":1}", "{\"a\":1,}", "{\"a\":1 \"b\":2}", "{\"a\" 1}", "{,}",
@@ -45,7 +39,6 @@ public class Corpus {
         };
         for (String s : inputs) t(s);
 
-        // Encoding side.
         e(null); e("a/b"); e(Integer.valueOf(1)); e(Long.valueOf(1)); e(Short.valueOf((short)1));
         e(Byte.valueOf((byte)1)); e(Float.valueOf(1.5f)); e(Double.valueOf(1.5));
         e(Float.valueOf(Float.NaN)); e(Double.valueOf(Double.NaN));
@@ -61,14 +54,11 @@ public class Corpus {
         e(lhm);
         e(new HashSet(Arrays.asList("only")));
 
-        // Fingerprint of escape() over every character it special-cases, so a
-        // change to the escaping rules cannot slip through unnoticed.
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i <= 0x2FFF; i++) sb.append(JSONValue.escape(String.valueOf((char) i)));
         System.out.println("escape-fingerprint-length=" + sb.length());
         System.out.println("escape-fingerprint-hash=" + sb.toString().hashCode());
 
-        // ItemList. Two bugs here were fixed in 1.1.2, so differences are expected.
         System.out.println("ItemList(a,b,c).toString=" + Probe.safe(new ItemList("a,b,c").toString()));
         System.out.println("ItemList(a;b,';').size=" + new ItemList("a;b", ";").size());
     }

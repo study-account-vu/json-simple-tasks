@@ -10,16 +10,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.ObjectStreamClass;
 
-/**
- * Serialization compatibility probe.
- *
- *   SerCheck svuid          - print the serialVersionUID of every serializable public type
- *   SerCheck write <file>   - serialize a JSONObject to <file>
- *   SerCheck read  <file>   - deserialize <file> and print it
- *
- * Compiled against the baseline release, then run against both jars, so a changed
- * serialVersionUID or a broken cross-version round trip shows up as an output diff.
- */
 public class SerCheck {
 
     private static final String DOC =
@@ -58,8 +48,6 @@ public class SerCheck {
             ObjectInputStream in = new ObjectInputStream(new FileInputStream(file));
             JSONObject obj = (JSONObject) in.readObject();
             in.close();
-            // Key order is not stable across HashMap implementations, so report
-            // individual lookups rather than the serialised form.
             System.out.println("read " + file.getName()
                 + " id=" + obj.get("id")
                 + " s=" + obj.get("s")
@@ -70,7 +58,6 @@ public class SerCheck {
             return;
         }
 
-        // In-process round trip, as a sanity check independent of the file modes.
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         ObjectOutputStream out = new ObjectOutputStream(bytes);
         out.writeObject(JSONValue.parse(DOC));

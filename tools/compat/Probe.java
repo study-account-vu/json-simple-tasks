@@ -1,13 +1,5 @@
-/**
- * Shared helper for the compatibility probes.
- *
- * Probe output is diffed between two builds, so it must be pure ASCII: a raw
- * control character in the stream makes diff treat the file as binary and skip
- * the line-by-line comparison entirely, silently hiding real differences.
- */
 public class Probe {
 
-    /** Render a value so that every character is printable and unambiguous. */
     public static String safe(Object value) {
         if (value == null) {
             return "null";
@@ -30,7 +22,6 @@ public class Probe {
         return sb.toString();
     }
 
-    /** safe(), plus the runtime type, which is half of what compatibility means here. */
     public static String typed(Object value) {
         if (value == null) {
             return "null(null)";
