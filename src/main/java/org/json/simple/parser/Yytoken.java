@@ -2,6 +2,11 @@ package org.json.simple.parser;
 
 import java.io.Serializable;
 
+/**
+ * A lexical unit produced by {@link Yylex} and consumed by {@link JSONParser}.
+ * Structural token kinds carry no value; {@link #TYPE_VALUE} tokens carry the
+ * decoded Java value in {@link #value}.
+ */
 public class Yytoken implements Serializable {
 	private static final long serialVersionUID = 4341219912214205621L;
 	
@@ -17,11 +22,18 @@ public class Yytoken implements Serializable {
 	public int type=0;
 	public Object value=null;
 	
+	/**
+	 * Creates a token with a category and optional decoded payload.
+	 *
+	 * @param type token category
+	 * @param value decoded payload for a value token
+	 */
 	public Yytoken(int type,Object value){
 		this.type=type;
 		this.value=value;
 	}
 	
+	/** Returns a readable label for this token and its value, when present. */
 	public String toString(){
 		StringBuffer sb = new StringBuffer();
 		switch(type){

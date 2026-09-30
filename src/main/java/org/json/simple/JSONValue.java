@@ -12,7 +12,21 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 
+
+/**
+ * Static entry points for parsing JSON and converting Java values to JSON text.
+ * Parsing is delegated to {@link JSONParser}; serialization dispatches to the
+ * library's object, array, and custom-value interfaces.
+ */
 public class JSONValue {
+	/**
+	 * Parses a JSON document, returning {@code null} when parsing fails.
+	 * Prefer {@link #parseWithException(Reader)} when the failure details are
+	 * needed.
+	 *
+	 * @param in source containing one JSON document
+	 * @return the parsed value, or {@code null} if parsing fails
+	 */
 	@Deprecated
 	public static Object parse(Reader in){
 		try{
@@ -24,22 +38,53 @@ public class JSONValue {
 		}
 	}
 	
+	/**
+	 * Parses a JSON string, returning {@code null} when parsing fails.
+	 *
+	 * @param s text containing one JSON document
+	 * @return the parsed value, or {@code null} if parsing fails
+	 */
 	@Deprecated
 	public static Object parse(String s){
 		StringReader in=new StringReader(s);
 		return parse(in);
 	}
 	
+	/**
+	 * Parses one JSON document from a reader and reports parse failures.
+	 *
+	 * @param in source containing the document
+	 * @return the parsed JSON value, represented by standard Java values and
+	 *         {@code JSONObject}/{@code JSONArray} containers
+	 * @throws IOException if reading the source fails
+	 * @throws ParseException if the source is not a valid JSON document
+	 */
 	public static Object parseWithException(Reader in) throws IOException, ParseException{
 		JSONParser parser=new JSONParser();
 		return parser.parse(in);
 	}
 	
+	/**
+	 * Parses one JSON document from a string and reports parse failures.
+	 *
+	 * @param s text containing the document
+	 * @return the parsed JSON value
+	 * @throws ParseException if the string is not a valid JSON document
+	 */
 	public static Object parseWithException(String s) throws ParseException{
 		JSONParser parser=new JSONParser();
 		return parser.parse(s);
 	}
 	
+	/**
+	 * Writes a Java value as JSON to a writer. Maps, collections, arrays, and
+	 * values implementing the JSON-aware interfaces are handled according to
+	 * their respective representations.
+	 *
+	 * @param value value to encode
+	 * @param out destination for the JSON text
+	 * @throws IOException if writing to the destination fails
+	 */
 	public static void writeJSONString(Object value, Writer out) throws IOException {
 		if(value == null){
 			out.write("null");
@@ -147,6 +192,12 @@ public class JSONValue {
 		out.write(value.toString());
 	}
 
+	/**
+	 * Returns the JSON representation of a Java value.
+	 *
+	 * @param value value to encode
+	 * @return JSON text representing the value
+	 */
 	public static String toJSONString(Object value){
 		final StringWriter writer = new StringWriter();
 		
@@ -158,6 +209,13 @@ public class JSONValue {
 		}
 	}
 
+	/**
+	 * Escapes characters in a string for use inside a JSON string literal.
+	 * The returned text does not include surrounding quotation marks.
+	 *
+	 * @param s string to escape
+	 * @return escaped string, or {@code null} when the input is {@code null}
+	 */
 	public static String escape(String s){
 		if(s==null)
 			return null;
@@ -166,6 +224,12 @@ public class JSONValue {
         return sb.toString();
     }
 
+	/**
+	 * Appends the escaped form of a string to an existing buffer.
+	 *
+	 * @param s source string to escape
+	 * @param sb destination buffer receiving escaped characters
+	 */
     static void escape(String s, StringBuffer sb) {
     	final int len = s.length();
 		for(int i=0;i<len;i++){

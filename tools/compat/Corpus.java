@@ -1,11 +1,25 @@
 import org.json.simple.*; import org.json.simple.parser.*;
 import java.io.*; import java.util.*;
 
+/**
+ * Runs a fixed corpus of JSON parsing and serialization inputs and prints
+ * normalized results for comparison between library builds.
+ */
 public class Corpus {
+    /**
+     * Formats a parsed result with its runtime container or value type.
+     * @param o parsed value to describe
+     * @return type label and JSON representation
+     */
     static String show(Object o) {
         if (o == null) return "null(null)";
         return o.getClass().getSimpleName() + "(" + Probe.safe(JSONValue.toJSONString(o)) + ")";
     }
+
+    /**
+     * Prints strict and non-throwing parse outcomes for one input string.
+     * @param in JSON input to parse
+     */
     static void t(String in) {
         String r;
         try { r = show(JSONValue.parseWithException(in)); }
@@ -15,11 +29,22 @@ public class Corpus {
         catch (Throwable e) { r2 = "THROW " + e.getClass().getName(); }
         System.out.println("[" + Probe.safe(in) + "] => " + Probe.safe(r) + " | parse=" + Probe.safe(r2));
     }
+
+    /**
+     * Prints the encoded form of one Java value, including thrown exception types.
+     * @param v value to encode
+     */
     static void e(Object v) {
         String r;
         try { r = JSONValue.toJSONString(v); } catch (Throwable ex) { r = "THROW " + ex.getClass().getName(); }
         System.out.println("enc(" + (v == null ? "null" : v.getClass().getSimpleName()) + ") => " + Probe.safe(r));
     }
+    
+    /**
+     * Executes the fixed parse and encode corpus.
+     * @param a command-line arguments (unused)
+     * @throws Exception if an input/output operation fails
+     */
     public static void main(String[] a) throws Exception {
         String[] inputs = {
           "{}", "[]", "null", "true", "false", "0", "-0", "1", "-1", "123456789012345678",

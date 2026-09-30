@@ -3,39 +3,76 @@ import org.json.simple.parser.*;
 import java.io.*;
 import java.util.*;
 
+/**
+ * Exercises the library's public API from a downstream-style consumer and
+ * prints the results used by the compatibility comparison.
+ */
 public class LegacyConsumer {
 
+    /** Creates ordered containers so parsed member order is observable. */
     static class OrderedFactory implements ContainerFactory {
+        /** {@inheritDoc} */
         public Map createObjectContainer() { return new LinkedHashMap(); }
+        /** {@inheritDoc} */
         public List creatArrayContainer()  { return new ArrayList(); }
     }
 
+    /** Counts structural and primitive events received from the parser. */
     static class Counter implements ContentHandler {
         int objects, arrays, primitives;
+        /** {@inheritDoc} */
         public void startJSON() {}
+        /** {@inheritDoc} */
         public void endJSON() {}
+        /** {@inheritDoc} */
         public boolean startObject()  { objects++; return true; }
+        /** {@inheritDoc} */
         public boolean endObject()    { return true; }
+        /** {@inheritDoc} */
         public boolean startObjectEntry(String key) { return true; }
+        /** {@inheritDoc} */
         public boolean endObjectEntry() { return true; }
+        /** {@inheritDoc} */
         public boolean startArray()   { arrays++; return true; }
+        /** {@inheritDoc} */
         public boolean endArray()     { return true; }
+        /** {@inheritDoc} */
         public boolean primitive(Object v) { primitives++; return true; }
     }
 
+    /** Custom value that exposes equivalent string and streaming encoders. */
     static class Money implements JSONAware, JSONStreamAware {
+        /** Monetary amount represented in the smallest currency unit. */
         long cents;
+        /**
+         * Creates a sample value with an amount for the JSON encoders.
+         * @param c amount in the smallest currency unit
+         */
         Money(long c) { cents = c; }
+        /** {@inheritDoc} */
         public String toJSONString() { return "{\"cents\":" + cents + "}"; }
+        /** {@inheritDoc} */
         public void writeJSONString(Writer out) throws IOException { out.write(toJSONString()); }
     }
 
+    /** JSON-object subclass used to exercise inherited serialization behavior. */
     static class Config extends JSONObject {
+        /** Initializes the sample configuration member. */
         Config() { super(); put("kind", "config"); }
     }
 
+    /**
+     * Writes one labeled value through the harness's stable escaping.
+     * @param label name printed before the value
+     * @param v value to display
+     */
     static void p(String label, Object v) { System.out.println(label + " = " + Probe.safe(v)); }
 
+    /**
+     * Runs representative parsing, encoding, callback, and serialization calls.
+     * @param args command-line arguments (unused)
+     * @throws Exception if a parsing, I/O, or serialization operation fails
+     */
     public static void main(String[] args) throws Exception {
         String doc = "{\"id\":42,\"ratio\":0.5,\"ok\":true,\"none\":null,"
                    + "\"path\":\"a/b\",\"list\":[1,\"two\",3.0,false,null],"

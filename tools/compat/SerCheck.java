@@ -10,11 +10,25 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.ObjectStreamClass;
 
+/**
+ * Command-line harness for checking serialized forms across library builds.
+ * Supports serial-version inspection, file-based read/write, and an in-memory
+ * round trip.
+ */
 public class SerCheck {
 
+    /** Representative JSON document used to produce the serialized object. */
     private static final String DOC =
         "{\"id\":42,\"s\":\"a/b\",\"l\":[1,2],\"n\":null,\"d\":1.5,\"b\":true}";
 
+    /**
+     * Runs the selected serialization check.
+     *
+     * @param args mode, followed where applicable by the serialized-file path;
+     *             supported modes are {@code svuid}, {@code write}, and
+     *             {@code read}
+     * @throws Exception if class loading, serialization, or file access fails
+     */
     public static void main(String[] args) throws Exception {
         String mode = args.length > 0 ? args[0] : "svuid";
 

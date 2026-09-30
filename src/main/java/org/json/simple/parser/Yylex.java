@@ -2,6 +2,11 @@
 
 package org.json.simple.parser;
 
+/**
+ * Table-driven scanner that converts JSON characters into {@link Yytoken}s for
+ * {@link JSONParser}. It also decodes string escapes while retaining the
+ * current character position for parse diagnostics.
+ */
 class Yylex {
 
   public static final int YYEOF = -1;
@@ -33,6 +38,7 @@ class Yylex {
     "\1\0\1\25\1\0\1\25\4\0\1\26\1\27\2\0"+
     "\1\30";
 
+  /** Expands the packed action table into the scanner's action array. */
   private static int [] zzUnpackAction() {
     int [] result = new int[45];
     int offset = 0;
@@ -40,6 +46,14 @@ class Yylex {
     return result;
   }
 
+  /**
+   * Decodes run-length encoded action entries into a destination array.
+   *
+   * @param packed encoded action values
+   * @param offset first destination index to fill
+   * @param result destination action array
+   * @return destination index immediately after the decoded entries
+   */
   private static int zzUnpackAction(String packed, int offset, int [] result) {
     int i = 0;        
     int j = offset;   
@@ -63,6 +77,7 @@ class Yylex {
     "\0\u01b0\0\u01cb\0\u01e6\0\u01e6\0\u0201\0\u021c\0\u0237\0\u0252"+
     "\0\66\0\66\0\u026d\0\u0288\0\66";
 
+  /** Expands the packed row-map table used to select scanner transitions. */
   private static int [] zzUnpackRowMap() {
     int [] result = new int[45];
     int offset = 0;
@@ -70,6 +85,14 @@ class Yylex {
     return result;
   }
 
+  /**
+   * Decodes packed pairs of high and low halves into row-map integers.
+   *
+   * @param packed encoded row-map values
+   * @param offset first destination index to fill
+   * @param result destination row-map array
+   * @return destination index immediately after the decoded entries
+   */
   private static int zzUnpackRowMap(String packed, int offset, int [] result) {
     int i = 0;   
     int j = offset;   
@@ -162,6 +185,7 @@ class Yylex {
     "Error: pushback value was too large"
   };
 
+
   private static final int [] ZZ_ATTRIBUTE = zzUnpackAttribute();
 
   private static final String ZZ_ATTRIBUTE_PACKED_0 =
@@ -169,6 +193,7 @@ class Yylex {
     "\5\0\10\11\1\0\1\1\1\0\1\1\4\0\2\11"+
     "\2\0\1\11";
 
+  /** Expands the packed scanner-attribute table into an integer array. */
   private static int [] zzUnpackAttribute() {
     int [] result = new int[45];
     int offset = 0;
@@ -176,6 +201,14 @@ class Yylex {
     return result;
   }
 
+  /**
+   * Decodes run-length encoded scanner attributes into a destination array.
+   *
+   * @param packed encoded attribute values
+   * @param offset first destination index to fill
+   * @param result destination attribute array
+   * @return destination index immediately after the decoded entries
+   */
   private static int zzUnpackAttribute(String packed, int offset, int [] result) {
     int i = 0;        
     int j = offset;   
@@ -214,22 +247,41 @@ class Yylex {
 
   private boolean zzAtEOF;
 
+/** Accumulates decoded characters while scanning a JSON string. */
 private StringBuffer sb=new StringBuffer();
 
+/**
+ * Returns the character offset currently associated with the scanned input.
+ * @return current character offset
+ */
 int getPosition(){
 	return yychar;
 }
 
 
 
+  /**
+   * Creates a scanner over a character reader.
+   * @param in reader supplying the input characters
+   */
   Yylex(java.io.Reader in) {
     this.zzReader = in;
   }
 
+  /**
+   * Creates a scanner over an input stream using the platform default charset.
+   * @param in input stream supplying the encoded input
+   */
   Yylex(java.io.InputStream in) {
     this(new java.io.InputStreamReader(in));
   }
 
+  /**
+   * Expands the packed character-class mapping to cover all UTF-16 code units.
+   *
+   * @param packed run-length encoded character classes
+   * @return mapping from each character value to its scanner class
+   */
   private static char [] zzUnpackCMap(String packed) {
     char [] map = new char[0x10000];
     int i = 0;   
@@ -243,6 +295,13 @@ int getPosition(){
   }
 
 
+  /**
+   * Refills the scanner buffer, compacting consumed input or growing it when
+   * the current token spans the available capacity.
+   *
+   * @return {@code true} when the input is exhausted; otherwise {@code false}
+   * @throws java.io.IOException if reading more input fails
+   */
   private boolean zzRefill() throws java.io.IOException {
 
     if (zzStartRead > 0) {
@@ -283,6 +342,10 @@ int getPosition(){
   }
 
     
+  /**
+   * Closes the current input and marks the scanner as at end of input.
+   * @throws java.io.IOException if closing the input fails
+   */
   public final void yyclose() throws java.io.IOException {
     zzAtEOF = true;             
     zzEndRead = zzStartRead;   
@@ -292,6 +355,11 @@ int getPosition(){
   }
 
 
+  /**
+   * Replaces the input and restores the scanner's initial position and state.
+   *
+   * @param reader new character source
+   */
   public final void yyreset(java.io.Reader reader) {
     zzReader = reader;
     zzAtBOL  = true;
@@ -303,31 +371,58 @@ int getPosition(){
   }
 
 
+  /**
+   * Returns the current lexical state.
+   * @return current state identifier
+   */
   public final int yystate() {
     return zzLexicalState;
   }
 
 
+  /**
+   * Selects the lexical state used for subsequent scanning.
+   * @param newState lexical state identifier
+   */
   public final void yybegin(int newState) {
     zzLexicalState = newState;
   }
 
 
+  /**
+   * Returns the text matched for the current scanner action.
+   * @return matched input text
+   */
   public final String yytext() {
     return new String( zzBuffer, zzStartRead, zzMarkedPos-zzStartRead );
   }
 
 
+  /**
+   * Returns a character from the current matched text.
+   * @param pos zero-based position within the matched text
+   * @return character at the requested position
+   */
   public final char yycharat(int pos) {
     return zzBuffer[zzStartRead+pos];
   }
 
 
+  /**
+   * Returns the number of characters in the current matched text.
+   * @return matched-text length
+   */
   public final int yylength() {
     return zzMarkedPos-zzStartRead;
   }
 
 
+  /**
+   * Raises the scanner's internal error corresponding to an error code.
+   *
+   * @param errorCode index of the scanner error description
+   * @throws Error when the scanner cannot continue
+   */
   private void zzScanError(int errorCode) {
     String message;
     try {
@@ -341,6 +436,10 @@ int getPosition(){
   } 
 
 
+  /**
+   * Returns matched characters to the input window so they can be scanned again.
+   * @param number number of characters to push back
+   */
   public void yypushback(int number)  {
     if ( number > yylength() )
       zzScanError(ZZ_PUSHBACK_2BIG);
@@ -349,6 +448,13 @@ int getPosition(){
   }
 
 
+  /**
+   * Scans and returns the next JSON token.
+   *
+   * @return next token, or {@code null} when the input is exhausted
+   * @throws java.io.IOException if reading the input fails
+   * @throws ParseException if a character cannot be interpreted as JSON text
+   */
   public Yytoken yylex() throws java.io.IOException, ParseException {
     int zzInput;
     int zzAction;
@@ -536,6 +642,4 @@ int getPosition(){
       }
     }
   }
-
-
 }
