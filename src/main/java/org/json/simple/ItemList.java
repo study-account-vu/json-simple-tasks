@@ -66,7 +66,11 @@ public class ItemList {
 	 * @return array containing the items in list order
 	 */
 	public String[] getArray(){
-		return (String[])this.items.toArray();
+		try{
+			return (String[])this.items.toArray();
+		}catch(ClassCastException e){
+			return null;
+		}
 	}
 	
 	/**

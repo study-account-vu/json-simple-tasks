@@ -1,10 +1,14 @@
 # Task 1: String-Like Value Encoding
 
-Please complete Task 1 before beginning this task.
+## Your Task
+
+Reproduce the bug using the provided JShell code, then **find and modify the appropriate Java source code under `src/main/java` to fix it.**
+
+**Do not modify the JShell reproduction code.** Finding the relevant source file and method is part of the task.
 
 ## Bug Report
 
-Here, **serialization** means converting a Java value into JSON text; it does not mean Java's object-serialization mechanism. A JSON string is text surrounded by double quotes (`"`). For example:
+**Serialization** means converting a Java value into JSON text. A JSON string is text surrounded by double quotes (`"`). For example:
 
 ```text
 "hello"
@@ -26,7 +30,7 @@ Start JShell:
 jshell --class-path target/classes
 ```
 
-At the JShell prompt, run:
+At the JShell prompt, run the following code **exactly as shown**:
 
 ```java
 import org.json.simple.JSONValue;
@@ -52,13 +56,9 @@ world
 "world"
 ```
 
-## Your Task
-
-**Investigate why `StringBuilder` and `StringBuffer` values are not serialized as valid JSON strings, and modify the code to fix the bug.**
-
 ## Test Your Fix
 
-After making a code change, exit JShell:
+After modifying the Java source code, exit JShell:
 
 ```text
 /exit
@@ -76,4 +76,4 @@ Start JShell again:
 jshell --class-path target/classes
 ```
 
-Repeat the reproduction steps above to check whether your fix works.
+Run the **same reproduction code without changing it** and confirm that it now produces the expected output.
